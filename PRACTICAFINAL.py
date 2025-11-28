@@ -1,7 +1,7 @@
-import os
+import osimport os
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QTextDocument, QTextCursor, QFontDatabase, QTextCharFormat, QFont
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QColorDialog, QComboBox, QMainWindow, QTextEdit, QFileDialog, QLabel, QToolBar, QWidget, QVBoxLayout, QLineEdit,QHBoxLayout, QPushButton, QDockWidget
+from PySide6.QtWidgets import QFontDialog, QApplication, QColorDialog, QComboBox, QMainWindow, QTextEdit, QFileDialog, QLabel, QToolBar, QWidget, QVBoxLayout, QLineEdit,QHBoxLayout, QPushButton, QDockWidget
 
 class VentanaPrincipal(QMainWindow):
     def __init__(self):
@@ -96,7 +96,7 @@ class VentanaPrincipal(QMainWindow):
         #FUENTE
         icono_fuente = os.path.join(os.path.dirname( __file__), "funete.png")
         self.fuente = QAction(QIcon(icono_fuente), "Fuente", self)
-        self.fuente.triggered.connect(self.fun_fuente)
+        self.fuente.triggered.connect(self.fun_dialogo_fuente)
 
     def fun_accionBuscar(self):
         icono_buscar = os.path.join(os.path.dirname( __file__), "buscar.png")
@@ -156,7 +156,7 @@ class VentanaPrincipal(QMainWindow):
         fuentes_disponibles = QFontDatabase.families()
         self.combobox_fuentes.addItems(fuentes_disponibles)
 
-        self.combobox_fuentes.textActivated.connect(self.fun_fuente)
+        self.combobox_fuentes.currentTextChanged.connect(self.fun_fuente)
 
         layout.addWidget(self.combobox_fuentes)
 
@@ -244,6 +244,35 @@ class VentanaPrincipal(QMainWindow):
             self.area_texto.mergeCurrentCharFormat(formato)
         else:
             self.area_texto.setCurrentFont(QFont(fuente))   
+
+    def fun_dialogo_fuente(self):
+        resultado = QFontDialog.getFont(self)
+        if not isinstance(resultado, tuple) or len(resultado) < 2:
+            return
+
+        if isinstance(resultado[0], QFont):
+            fuente, ok = resultado[0], bool(resultado[1])
+        elif isinstance(resultado[1], QFont):
+            ok, fuente = bool(resultado[0]), resultado[1]
+        else:
+            return
+
+        if ok:
+            cursor = self.area_texto.textCursor()
+            formato = QTextCharFormat()
+            formato.setFont(fuente) 
+
+            if cursor.hasSelection():
+                cursor.mergeCharFormat(formato)
+                self.area_texto.mergeCurrentCharFormat(formato)
+            else:
+                self.area_texto.setCurrentFont(fuente)
+
+            try:
+                self.combobox_fuentes.setCurrentText(fuente.family())
+            except Exception:
+                pass
+
 
     #FUNCION FONDO
     def fun_fondo(self):
