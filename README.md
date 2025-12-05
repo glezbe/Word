@@ -22,3 +22,19 @@ deshacer.png rehacer.png copiar.png cortar.png pegar.png color.png
 funete.png buscar.png README.md
 
 <img width="1919" height="991" alt="image" src="https://github.com/user-attachments/assets/2c96293c-ba7c-4f66-8c88-0b638eb493a7" />
+
+He firmado el .exe
+<img width="1428" height="286" alt="image" src="https://github.com/user-attachments/assets/6ca8e2be-559d-4829-bc35-d06cbd00d64b" />
+<img width="1896" height="99" alt="image" src="https://github.com/user-attachments/assets/2dcdf662-940e-4f2c-95ed-dacb48dfb8b1" />
+<img width="1443" height="704" alt="image" src="https://github.com/user-attachments/assets/08742f81-790c-4f80-b15a-3544e3299fe6" />
+
+He generado un archivo instalador 
+<img width="999" height="453" alt="image" src="https://github.com/user-attachments/assets/478a8df7-9d71-40ca-b698-57f17a200c93" />
+
+y he subido el .exe y el instalador con el comando gh release 
+<img width="1888" height="439" alt="image" src="https://github.com/user-attachments/assets/2ea45e99-9ed3-4a08-b889-4039b4ed89a5" />
+
+Por último, he editado el código de mi .py para que también funcione el dictado de voz.
+
+
+
