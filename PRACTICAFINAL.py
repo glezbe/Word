@@ -1,7 +1,11 @@
-import osimport os
+import os
+import speech_recognition as sr
+
+
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QTextDocument, QTextCursor, QFontDatabase, QTextCharFormat, QFont
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QFontDialog, QApplication, QColorDialog, QComboBox, QMainWindow, QTextEdit, QFileDialog, QLabel, QToolBar, QWidget, QVBoxLayout, QLineEdit,QHBoxLayout, QPushButton, QDockWidget
+
 
 class VentanaPrincipal(QMainWindow):
     def __init__(self):
@@ -98,6 +102,13 @@ class VentanaPrincipal(QMainWindow):
         self.fuente = QAction(QIcon(icono_fuente), "Fuente", self)
         self.fuente.triggered.connect(self.fun_dialogo_fuente)
 
+        #VOZ
+        icono_micro = os.path.join(os.path.dirname(__file__), "microfono.png")
+        self.dictado_voz = QAction(QIcon(icono_micro), "Dictado por voz", self)
+        self.dictado_voz.setShortcut(QKeySequence("Ctrl+Shift+D"))
+        self.dictado_voz.triggered.connect(self.dictar_por_voz)
+
+
     def fun_accionBuscar(self):
         icono_buscar = os.path.join(os.path.dirname( __file__), "buscar.png")
         self.buscarAct = QAction(QIcon(icono_buscar), "Buscar y Reemplazar", self)
@@ -114,7 +125,7 @@ class VentanaPrincipal(QMainWindow):
         #acciones editar
         menuE = barraM.addMenu("Editar") 
         #acciones añadidas
-        menuE.addActions([self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color])
+        menuE.addActions([self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color, self.dictado_voz])
         #accion buscar
         menuB = barraM.addMenu("Buscar")
         menuB.addAction(self.buscarAct)
@@ -122,7 +133,7 @@ class VentanaPrincipal(QMainWindow):
     def fun_barra_herramientas(self):
         barraH =  QToolBar("Herramientas")
         self.addToolBar(barraH)
-        barraH.addActions([self.nuevo, self.abrir, self.guardar, self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color, self.buscarAct])
+        barraH.addActions([self.nuevo, self.abrir, self.guardar, self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color, self.buscarAct, self.dictado_voz])
 
     def fun_buscador(self):
         panel = QWidget()
@@ -349,6 +360,35 @@ class VentanaPrincipal(QMainWindow):
     def fun_mostrar_buscador(self):
         self.dock.show()
         self.buscar.setFocus()
+
+    def reconocer_voz(self):
+        recognizer = sr.Recognizer()
+        try:
+            with sr.Microphone() as source:
+                recognizer.adjust_for_ambient_noise(source, duration=0.6)
+                recognizer.pause_threshold = 1.2
+                recognizer.non_speaking_duration = 0.6
+                audio = recognizer.listen(source, timeout=5, phrase_time_limit=10)
+        except sr.WaitTimeoutError:
+            return ""
+        except Exception:
+            return None
+
+        try:
+            texto = recognizer.recognize_google(audio, language="es-ES")
+            return texto.strip()
+        except sr.UnknownValueError:
+            return ""
+        except sr.RequestError:
+            return ""
+    
+    def dictar_por_voz(self):
+        texto = self.reconocer_voz()
+        self.procesar_texto_de_voz(texto)
+
+    def procesar_texto_de_voz(self, texto):
+        # aquí haces lo que quieras con el texto reconocido
+        self.area_texto.insertPlainText(texto + " ")
 
 
 #    def resizeEvent(self, event):
