@@ -47,5 +47,94 @@ Esta clase se encarga de:
 - Mostrar estos datos directamente en la barra de estado del editor.
 - Actualizarse automáticamente cada vez que el texto cambia.
 
+## Señales (Signals) usadas en la aplicación
+
+En PySide6 (Qt), una **señal** es un evento que emite un componente (botón, acción, editor de texto, etc.) y se conecta a un **slot** (una función/método) que se ejecuta cuando ocurre ese evento.
+
+A continuación se listan **todas las señales conectadas** en este proyecto:
+
+### 1) Señales del editor de texto (QTextEdit)
+
+- `self.area_texto.textChanged` → `lambda: self.word_counter.update_from_text(self.area_texto.toPlainText())`  
+  **Descripción:** cada vez que cambia el texto del editor, se actualiza el contador (palabras, caracteres y tiempo de lectura).
+
+---
+
+### 2) Señales de acciones del menú/barra de herramientas (QAction)
+
+Estas señales se disparan cuando el usuario pulsa un elemento del menú o un icono de la barra.
+
+- `self.nuevo.triggered` → `fun_nuevo()`  
+  **Descripción:** limpia el editor y crea un documento nuevo.
+
+- `self.abrir.triggered` → `fun_abrir()`  
+  **Descripción:** abre un archivo `.txt` y lo carga en el editor.
+
+- `self.guardar.triggered` → `fun_guardar()`  
+  **Descripción:** guarda el contenido del editor en un archivo `.txt`.
+
+- `self.salir.triggered` → `fun_salir()`  
+  **Descripción:** cierra la aplicación.
+
+- `self.deshacer.triggered` → `fun_deshacer()`  
+  **Descripción:** deshace la última acción en el editor.
+
+- `self.rehacer.triggered` → `fun_rehacer()`  
+  **Descripción:** rehace la última acción deshecha.
+
+- `self.copiar.triggered` → `fun_copiar()`  
+  **Descripción:** copia el texto seleccionado al portapapeles.
+
+- `self.cortar.triggered` → `fun_cortar()`  
+  **Descripción:** corta el texto seleccionado al portapapeles.
+
+- `self.pegar.triggered` → `fun_pegar()`  
+  **Descripción:** pega el contenido del portapapeles en la posición del cursor.
+
+- `self.color.triggered` → `fun_fondo()`  
+  **Descripción:** abre un selector de color y cambia el color de fondo del editor.
+
+- `self.fuente.triggered` → `fun_dialogo_fuente()`  
+  **Descripción:** abre el diálogo de selección de fuente y aplica la fuente al texto.
+
+- `self.buscarAct.triggered` → `fun_mostrar_buscador()`  
+  **Descripción:** muestra el panel (dock) de Buscar / Reemplazar.
+
+- `self.dictado_voz.triggered` → `dictar_por_voz()`  
+  **Descripción:** activa el dictado por voz, reconoce el audio y escribe el texto reconocido en el editor.
+
+---
+
+### 3) Señales del panel de Buscar / Reemplazar (QPushButton)
+
+- `self.btn_sig.clicked` → `fun_encontrar_sig()`  
+  **Descripción:** busca la siguiente coincidencia del texto indicado.
+
+- `self.btn_prev.clicked` → `fun_encontrar_prev()`  
+  **Descripción:** busca la coincidencia anterior del texto indicado.
+
+- `self.btn_reemplazar.clicked` → `fun_reemplazar_uno()`  
+  **Descripción:** reemplaza la coincidencia seleccionada por el texto de reemplazo.
+
+- `self.btn_reemplazar_todo.clicked` → `fun_reemplazar_todo()`  
+  **Descripción:** reemplaza todas las coincidencias del texto buscado por el texto de reemplazo.
+
+---
+
+### 4) Señales del selector de fuentes (QComboBox)
+
+- `self.combobox_fuentes.currentTextChanged` → `fun_fuente(fuente)`  
+  **Descripción:** cambia la fuente del texto (seleccionado o la fuente actual) según la opción elegida en el combo.
+
+---
+
+### 5) Señales del contador importado (WordCounterWidget)
+
+El proyecto usa una clase externa (`WordCounterWidget`) importada desde `contadorWidget.py`.
+Esta clase incluye una señal propia:
+
+- `WordCounterWidget.conteoActualizado(int palabras, int caracteres)`  
+  **Descripción:** se emite cuando se actualiza el conteo de palabras y caracteres.  
+  **Nota:** en este proyecto no se conecta a ningún slot, pero existe en el widget y podría usarse para reaccionar a cambios del conteo.
 
 
