@@ -36,5 +36,16 @@ y he subido el .exe y el instalador con el comando gh release
 
 Por último, he editado el código de mi .py para que también funcione el dictado de voz.
 
+## Cambios finales: contador de palabras mediante clase importada
+
+En esta última edición he rehecho la parte del conteo (palabras, caracteres y tiempo estimado de lectura).  
+En lugar de calcularlo con mis propias funciones y un `QLabel`, ahora lo hago mediante una clase externa proporcionada (`WordCounterWidget`) que importo desde `contadorWidget.py`.
+
+Esta clase se encarga de:
+- Contar palabras y caracteres a partir del texto actual.
+- Calcular el tiempo de lectura estimado.
+- Mostrar estos datos directamente en la barra de estado del editor.
+- Actualizarse automáticamente cada vez que el texto cambia.
+
 
 
