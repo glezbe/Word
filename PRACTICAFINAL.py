@@ -1,10 +1,26 @@
 import os
 import speech_recognition as sr
 
-
 from PySide6.QtGui import QAction, QIcon, QKeySequence, QTextDocument, QTextCursor, QFontDatabase, QTextCharFormat, QFont
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QFontDialog, QApplication, QColorDialog, QComboBox, QMainWindow, QTextEdit, QFileDialog, QLabel, QToolBar, QWidget, QVBoxLayout, QLineEdit,QHBoxLayout, QPushButton, QDockWidget
+from PySide6.QtWidgets import (
+    QFontDialog,
+    QApplication,
+    QColorDialog,
+    QComboBox,
+    QMainWindow,
+    QTextEdit,
+    QFileDialog,
+    QToolBar,
+    QWidget,
+    QVBoxLayout,
+    QLineEdit,
+    QHBoxLayout,
+    QPushButton,
+    QDockWidget,
+)
+
+from contadorWidget import WordCounterWidget
 
 
 class VentanaPrincipal(QMainWindow):
@@ -12,21 +28,19 @@ class VentanaPrincipal(QMainWindow):
         super().__init__()
         self.setWindowTitle("Práctica Final")
 
-        #creo area texto, con central widget lo pongo como componente principal
         self.area_texto = QTextEdit()
         self.setCentralWidget(self.area_texto)
-        #para contar las palabras cada vez que el texto cambia (en directo)
-        self.area_texto.textChanged.connect(self.fun_contador)
 
-        #creo la barra de estado
         self.barra_estado = self.statusBar()
-        self.contador = QLabel("Palabras: 0")
-        self.barra_estado.addPermanentWidget(self.contador)
+        self.word_counter = WordCounterWidget(wpm=200, parent=self)
+        self.barra_estado.addPermanentWidget(self.word_counter)
+
+        self.area_texto.textChanged.connect(
+            lambda: self.word_counter.update_from_text(self.area_texto.toPlainText())
+        )
+        self.word_counter.update_from_text(self.area_texto.toPlainText())
 
         self.fichero_actual = None
-
-        #fuente
-        
 
         self.fun_accionesArchivo()
         self.fun_accionesEditar()
@@ -36,104 +50,113 @@ class VentanaPrincipal(QMainWindow):
         self.fun_buscador()
 
     def fun_accionesArchivo(self):
-        #NUEVO
-        icono_nuevo = os.path.join(os.path.dirname( __file__), "nuevo.png")
+        icono_nuevo = os.path.join(os.path.dirname(__file__), "nuevo.png")
         self.nuevo = QAction(QIcon(icono_nuevo), "Nuevo", self)
         self.nuevo.setShortcut(QKeySequence("Ctrl+n"))
         self.nuevo.triggered.connect(self.fun_nuevo)
 
-        #ABRIR
-        icono_abrir = os.path.join(os.path.dirname( __file__), "abrir.png")
+        icono_abrir = os.path.join(os.path.dirname(__file__), "abrir.png")
         self.abrir = QAction(QIcon(icono_abrir), "Abrir", self)
         self.abrir.setShortcut(QKeySequence("Ctrl+a"))
         self.abrir.triggered.connect(self.fun_abrir)
 
-        #GUARDAR
-        icono_guardar = os.path.join(os.path.dirname( __file__), "guardar.png")
+        icono_guardar = os.path.join(os.path.dirname(__file__), "guardar.png")
         self.guardar = QAction(QIcon(icono_guardar), "Guardar", self)
         self.guardar.setShortcut(QKeySequence("Ctrl+g"))
         self.guardar.triggered.connect(self.fun_guardar)
 
-        #SALIR
-        icono_salir = os.path.join(os.path.dirname( __file__), "salir.png")
+        icono_salir = os.path.join(os.path.dirname(__file__), "salir.png")
         self.salir = QAction(QIcon(icono_salir), "Salir", self)
         self.salir.setShortcut(QKeySequence("Ctrl+s"))
         self.salir.triggered.connect(self.fun_salir)
 
-        #"Deshacer", "Rehacer", "Copiar", "Cortar" y "Pegar
     def fun_accionesEditar(self):
-        #DESHACER
-        icono_deshacer = os.path.join(os.path.dirname( __file__), "deshacer.png")
+        icono_deshacer = os.path.join(os.path.dirname(__file__), "deshacer.png")
         self.deshacer = QAction(QIcon(icono_deshacer), "Deshacer", self)
         self.deshacer.setShortcut(QKeySequence("Ctrl+d"))
         self.deshacer.triggered.connect(self.fun_deshacer)
 
-        #REHACER
-        icono_rehacer = os.path.join(os.path.dirname( __file__), "rehacer.png")
+        icono_rehacer = os.path.join(os.path.dirname(__file__), "rehacer.png")
         self.rehacer = QAction(QIcon(icono_rehacer), "Rehacer", self)
         self.rehacer.setShortcut(QKeySequence("Ctrl+r"))
         self.rehacer.triggered.connect(self.fun_rehacer)
 
-        #COPIAR
-        icono_copiar = os.path.join(os.path.dirname( __file__), "copiar.png")
+        icono_copiar = os.path.join(os.path.dirname(__file__), "copiar.png")
         self.copiar = QAction(QIcon(icono_copiar), "Copiar", self)
         self.copiar.setShortcut(QKeySequence("Ctrl+c"))
         self.copiar.triggered.connect(self.fun_copiar)
 
-        #CORTAR
-        icono_cortar = os.path.join(os.path.dirname( __file__), "cortar.png")
+        icono_cortar = os.path.join(os.path.dirname(__file__), "cortar.png")
         self.cortar = QAction(QIcon(icono_cortar), "Cortar", self)
         self.cortar.setShortcut(QKeySequence("Ctrl+x"))
         self.cortar.triggered.connect(self.fun_cortar)
 
-        #PEGAR
-        icono_pegar = os.path.join(os.path.dirname( __file__), "pegar.png")
+        icono_pegar = os.path.join(os.path.dirname(__file__), "pegar.png")
         self.pegar = QAction(QIcon(icono_pegar), "Pegar", self)
         self.pegar.setShortcut(QKeySequence("Ctrl+v"))
         self.pegar.triggered.connect(self.fun_pegar)
 
-        #COLOR
-        icono_color = os.path.join(os.path.dirname( __file__), "color.png")
+        icono_color = os.path.join(os.path.dirname(__file__), "color.png")
         self.color = QAction(QIcon(icono_color), "Color", self)
         self.color.triggered.connect(self.fun_fondo)
 
-        #FUENTE
-        icono_fuente = os.path.join(os.path.dirname( __file__), "funete.png")
+        icono_fuente = os.path.join(os.path.dirname(__file__), "funete.png")
         self.fuente = QAction(QIcon(icono_fuente), "Fuente", self)
         self.fuente.triggered.connect(self.fun_dialogo_fuente)
 
-        #VOZ
         icono_micro = os.path.join(os.path.dirname(__file__), "microfono.png")
         self.dictado_voz = QAction(QIcon(icono_micro), "Dictado por voz", self)
         self.dictado_voz.setShortcut(QKeySequence("Ctrl+Shift+D"))
         self.dictado_voz.triggered.connect(self.dictar_por_voz)
 
-
     def fun_accionBuscar(self):
-        icono_buscar = os.path.join(os.path.dirname( __file__), "buscar.png")
+        icono_buscar = os.path.join(os.path.dirname(__file__), "buscar.png")
         self.buscarAct = QAction(QIcon(icono_buscar), "Buscar y Reemplazar", self)
         self.buscarAct.setShortcut(QKeySequence("Ctrl+f"))
-        self.buscarAct.triggered.connect(self.fun_mostrar_buscador)    
-        
+        self.buscarAct.triggered.connect(self.fun_mostrar_buscador)
+
     def fun_barra_menu(self):
         barraM = self.menuBar()
-        #acciones archivo
-        menuA = barraM.addMenu("Archivo") 
-        #acciones añadidas
+
+        menuA = barraM.addMenu("Archivo")
         menuA.addActions([self.nuevo, self.abrir, self.guardar, self.salir])
 
-        #acciones editar
-        menuE = barraM.addMenu("Editar") 
-        #acciones añadidas
-        menuE.addActions([self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color, self.dictado_voz])
-        #accion buscar
+        menuE = barraM.addMenu("Editar")
+        menuE.addActions(
+            [
+                self.deshacer,
+                self.rehacer,
+                self.copiar,
+                self.cortar,
+                self.pegar,
+                self.fuente,
+                self.color,
+                self.dictado_voz,
+            ]
+        )
+
         menuB = barraM.addMenu("Buscar")
         menuB.addAction(self.buscarAct)
 
     def fun_barra_herramientas(self):
-        barraH =  QToolBar("Herramientas")
+        barraH = QToolBar("Herramientas")
         self.addToolBar(barraH)
-        barraH.addActions([self.nuevo, self.abrir, self.guardar, self.deshacer, self.rehacer, self.copiar, self.cortar, self.pegar, self.fuente, self.color, self.buscarAct, self.dictado_voz])
+        barraH.addActions(
+            [
+                self.nuevo,
+                self.abrir,
+                self.guardar,
+                self.deshacer,
+                self.rehacer,
+                self.copiar,
+                self.cortar,
+                self.pegar,
+                self.fuente,
+                self.color,
+                self.buscarAct,
+                self.dictado_voz,
+            ]
+        )
 
     def fun_buscador(self):
         panel = QWidget()
@@ -182,10 +205,7 @@ class VentanaPrincipal(QMainWindow):
         self.dock.setWidget(panel)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dock)
         self.dock.hide()
- 
 
-#FUNCIONES DE LAS ACCIONES ARCHIVO
-    #FUNCION ABRIR
     def fun_abrir(self):
         path, _ = QFileDialog.getOpenFileName(self, "Abrir archivo", "", "Archivos de texto (*.txt)")
         if path:
@@ -193,15 +213,14 @@ class VentanaPrincipal(QMainWindow):
                 self.area_texto.setPlainText(f.read())
             self.fichero_actual = path
             self.barra_estado.showMessage(f"Archivo abierto: {path}", 3000)
+            self.word_counter.update_from_text(self.area_texto.toPlainText())
 
-    #FUNCION NUEVO
     def fun_nuevo(self):
         self.area_texto.clear()
         self.fichero_actual = None
         self.barra_estado.showMessage("Nuevo documento creado", 3000)
+        self.word_counter.update_from_text(self.area_texto.toPlainText())
 
-
-    #FUNCION GUARDAR
     def fun_guardar(self):
         if not self.fichero_actual:
             path, _ = QFileDialog.getSaveFileName(self, "Guardar archivo", "", "Archivos de texto (*.txt)")
@@ -213,38 +232,30 @@ class VentanaPrincipal(QMainWindow):
             f.write(self.area_texto.toPlainText())
         self.barra_estado.showMessage("Archivo guardado con éxito", 3000)
 
-    #FUNCION SALIR
     def fun_salir(self):
         self.close()
         self.barra_estado.showMessage("Cerrando APP", 3)
 
-#FUNCIONES DE LAS ACCIONES EDITAR
-    #FUNCION DESHACER
     def fun_deshacer(self):
         self.area_texto.undo()
         self.barra_estado.showMessage("Acción deshecha", 3000)
 
-    #FUNCION REHACER
     def fun_rehacer(self):
         self.area_texto.redo()
         self.barra_estado.showMessage("Acción rehecha", 3000)
 
-    #FUNCION COPIAR
     def fun_copiar(self):
         self.area_texto.copy()
         self.barra_estado.showMessage("Sección copiada", 3000)
 
-    #FUNCION CORTAR
     def fun_cortar(self):
         self.area_texto.cut()
         self.barra_estado.showMessage("Sección cortada", 3000)
 
-    #FUNCION PEGAR
     def fun_pegar(self):
-        self.area_texto.paste() 
-        self.barra_estado.showMessage("Sección pegada", 3000)    
+        self.area_texto.paste()
+        self.barra_estado.showMessage("Sección pegada", 3000)
 
-    #FUNCION FUENTE
     def fun_fuente(self, fuente):
         cursor = self.area_texto.textCursor()
         formato = QTextCharFormat()
@@ -254,7 +265,7 @@ class VentanaPrincipal(QMainWindow):
             cursor.mergeCharFormat(formato)
             self.area_texto.mergeCurrentCharFormat(formato)
         else:
-            self.area_texto.setCurrentFont(QFont(fuente))   
+            self.area_texto.setCurrentFont(QFont(fuente))
 
     def fun_dialogo_fuente(self):
         resultado = QFontDialog.getFont(self)
@@ -271,7 +282,7 @@ class VentanaPrincipal(QMainWindow):
         if ok:
             cursor = self.area_texto.textCursor()
             formato = QTextCharFormat()
-            formato.setFont(fuente) 
+            formato.setFont(fuente)
 
             if cursor.hasSelection():
                 cursor.mergeCharFormat(formato)
@@ -284,20 +295,16 @@ class VentanaPrincipal(QMainWindow):
             except Exception:
                 pass
 
-
-    #FUNCION FONDO
     def fun_fondo(self):
         color = QColorDialog.getColor()
         if color.isValid():
             self.area_texto.setStyleSheet(f"background-color: {color.name()};")
 
-
-#FUNCIONES DE BUSCAR O REEMPLZAR
-    #FUNCION SIGUIENTE
     def fun_encontrar_sig(self):
         text = self.buscar.text()
         if not text:
             return
+
         cursor = self.area_texto.textCursor()
         document = self.area_texto.document()
 
@@ -310,9 +317,8 @@ class VentanaPrincipal(QMainWindow):
                 self.barra_estado.showMessage("No se encontraron coincidencias", 3000)
                 return
 
-        self.area_texto.setTextCursor(found)  
+        self.area_texto.setTextCursor(found)
 
-    #FUNCION PREVIA
     def fun_encontrar_prev(self):
         text = self.buscar.text()
         if not text:
@@ -333,7 +339,6 @@ class VentanaPrincipal(QMainWindow):
 
         self.area_texto.setTextCursor(found)
 
-    #FUNCION REEMPLZAR UNO
     def fun_reemplazar_uno(self):
         cursor = self.area_texto.textCursor()
         if cursor.hasSelection():
@@ -341,7 +346,6 @@ class VentanaPrincipal(QMainWindow):
             self.barra_estado.showMessage("Reemplazo realizado", 3000)
         self.fun_encontrar_sig()
 
-    #FUNCION REEMPLAZAR TODO
     def fun_reemplazar_todo(self):
         search_text = self.buscar.text()
         replace_text = self.reemplazar.text()
@@ -351,11 +355,7 @@ class VentanaPrincipal(QMainWindow):
         new_content = content.replace(search_text, replace_text)
         self.area_texto.setPlainText(new_content)
         self.barra_estado.showMessage("Reemplazo de todas las coincidencias completado", 3000)
-
-    def fun_contador(self):
-        texto = self.area_texto.toPlainText()
-        palabras = len(texto.split())
-        self.contador.setText(f"Palabras: {palabras}")
+        self.word_counter.update_from_text(self.area_texto.toPlainText())
 
     def fun_mostrar_buscador(self):
         self.dock.show()
@@ -381,23 +381,17 @@ class VentanaPrincipal(QMainWindow):
             return ""
         except sr.RequestError:
             return ""
-    
+
     def dictar_por_voz(self):
         texto = self.reconocer_voz()
         self.procesar_texto_de_voz(texto)
 
     def procesar_texto_de_voz(self, texto):
-        # aquí haces lo que quieras con el texto reconocido
+        if texto is None:
+            return
+        if texto == "":
+            return
         self.area_texto.insertPlainText(texto + " ")
-
-
-#    def resizeEvent(self, event):
-#        ancho = self.width() * 0.6
-#        alto = ancho * 1.414
-#        self.area_texto.setFixedSize(ancho, alto)
-
-#        super().resizeEvent(event)    
-        
 
 
 if __name__ == "__main__":
